@@ -1,0 +1,2041 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart IoT Dashboard</title>
+  <meta name="color-scheme" content="dark" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#030612;
+      --bg-2:#0a0e1a;
+      --card:#0f141f;
+      --card-2:#131829;
+      --line:#1a2847;
+      --text:#f0f4ff;
+      --muted:#8fa3c5;
+      --primary:#00d4ff;
+      --primary-2:#0088ff;
+      --success:#00ff88;
+      --warning:#ffaa00;
+      --danger:#ff0055;
+      --cyan:#00ffcc;
+      --purple:#bb66ff;
+      --shadow:0 0 30px rgba(0,212,255,.15), 0 18px 45px rgba(0,0,0,.5);
+      --radius:22px;
+      --radius-sm:14px;
+      --transition:.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:'Sarabun',sans-serif;background:
+      radial-gradient(circle at 20% 50%, rgba(0,212,255,.08), transparent 40%),
+      radial-gradient(circle at 80% 50%, rgba(187,102,255,.06), transparent 45%),
+      linear-gradient(180deg, #020409 0%, #030612 50%, #020409 100%);
+      color:var(--text);
+      min-height:100%;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font:inherit}
+    .hidden{display:none !important}
+
+    .app{
+      max-width:1400px;
+      margin:0 auto;
+      padding:22px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .brand-logo{
+      width:52px;height:52px;border-radius:18px;
+      background:linear-gradient(135deg,var(--primary),var(--purple));
+      display:grid;place-items:center;
+      color:white;font-size:24px;font-weight:800;
+      box-shadow:0 0 30px var(--primary), 0 0 60px rgba(0,212,255,.3), 0 10px 40px rgba(0,0,0,.5);
+      position:relative;
+      animation:logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse{
+      0%, 100%{box-shadow:0 0 30px var(--primary), 0 0 60px rgba(0,212,255,.3), 0 10px 40px rgba(0,0,0,.5)}
+      50%{box-shadow:0 0 50px var(--primary), 0 0 80px rgba(0,212,255,.5), 0 10px 40px rgba(0,0,0,.5)}
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:clamp(1.2rem,2vw,1.8rem);
+      font-weight:800;
+      letter-spacing:.2px;
+      background:linear-gradient(90deg, #00d4ff, #bb66ff, #00d4ff);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .brand p{
+      margin:3px 0 0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:none;
+      outline:none;
+      border-radius:14px;
+      padding:12px 16px;
+      background:rgba(15, 20, 31, 0.6);
+      color:var(--text);
+      border:1.5px solid #1a2847;
+      cursor:pointer;
+      transition:var(--transition);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height:44px;
+      position:relative;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      border-color:#00d4ff;
+      box-shadow:0 0 20px rgba(0,212,255,.2), inset 0 0 20px rgba(0,212,255,.05);
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,#0066ff,var(--primary));
+      border:1.5px solid var(--primary);
+      box-shadow:0 0 20px rgba(0,212,255,.25);
+      color:white;
+    }
+    .btn.primary:hover{
+      box-shadow:0 0 40px rgba(0,212,255,.5), inset 0 0 15px rgba(255,255,255,.1);
+      border-color:#00ffff;
+    }
+    .btn.success{
+      background:linear-gradient(135deg,#006633,var(--success));
+      border:1.5px solid var(--success);
+      box-shadow:0 0 20px rgba(0,255,136,.25);
+      color:white;
+    }
+    .btn.success:hover{
+      box-shadow:0 0 40px rgba(0,255,136,.5);
+    }
+    .btn.danger{
+      background:linear-gradient(135deg,#cc0033,var(--danger));
+      border:1.5px solid var(--danger);
+      box-shadow:0 0 20px rgba(255,0,85,.25);
+      color:white;
+    }
+    .btn.danger:hover{
+      box-shadow:0 0 40px rgba(255,0,85,.5);
+    }
+    .btn.ghost{
+      background:rgba(0,212,255,.05);
+      border-color:rgba(0,212,255,.2);
+    }
+    .btn.ghost:hover{
+      background:rgba(0,212,255,.1);
+    }
+
+    .pill{
+      border:1.5px solid #00d4ff;
+      background:rgba(0,212,255,.08);
+      padding:10px 14px;
+      border-radius:999px;
+      color:var(--primary);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:42px;
+      font-weight:600;
+      transition:var(--transition);
+      box-shadow:0 0 15px rgba(0,212,255,.15);
+    }
+
+    .pill:hover{
+      background:rgba(0,212,255,.12);
+      box-shadow:0 0 25px rgba(0,212,255,.3);
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--warning);
+      box-shadow:0 0 15px var(--warning), 0 0 30px rgba(255,170,0,.5);
+      animation:dotPulse 2s ease-in-out infinite;
+    }
+    @keyframes dotPulse{
+      0%, 100%{box-shadow:0 0 15px var(--warning), 0 0 30px rgba(255,170,0,.5)}
+      50%{box-shadow:0 0 25px var(--warning), 0 0 40px rgba(255,170,0,.8)}
+    }
+    .dot.online{
+      background:var(--success);
+      box-shadow:0 0 15px var(--success), 0 0 30px rgba(0,255,136,.5);
+    }
+    .dot.offline{
+      background:var(--danger);
+      box-shadow:0 0 15px var(--danger), 0 0 30px rgba(255,0,85,.5);
+    }
+
+    .grid{
+      display:grid;
+      gap:18px;
+    }
+
+    .dashboard{
+      grid-template-columns:1.15fr .85fr;
+      align-items:start;
+    }
+
+    .card{
+      background:linear-gradient(135deg, rgba(0,212,255,.03), rgba(187,102,255,.02));
+      border:1.5px solid #1a3d52;
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:0 0 30px rgba(0,212,255,.08), inset 0 0 30px rgba(0,212,255,.02), 0 18px 45px rgba(0,0,0,.5);
+      backdrop-filter:blur(20px);
+      transition:var(--transition);
+      position:relative;
+    }
+
+    .card:hover{
+      border-color:#00d4ff;
+      box-shadow:0 0 50px rgba(0,212,255,.15), inset 0 0 30px rgba(0,212,255,.04), 0 18px 45px rgba(0,0,0,.5);
+    }
+
+    .card h2,.card h3,.card h4{
+      margin:0 0 10px;
+      letter-spacing:.2px;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .sensor-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+
+    .sensor-card{
+      padding:18px;
+      border-radius:20px;
+      background:linear-gradient(135deg, rgba(0,212,255,.05), rgba(187,102,255,.03));
+      border:1.5px solid #1a3d52;
+      position:relative;
+      overflow:hidden;
+      transition:var(--transition);
+      box-shadow:0 0 20px rgba(0,212,255,.1), inset 0 0 20px rgba(0,212,255,.02);
+    }
+
+    .sensor-card:hover{
+      border-color:#00d4ff;
+      box-shadow:0 0 40px rgba(0,212,255,.2), inset 0 0 20px rgba(0,212,255,.05);
+      transform:translateY(-4px);
+    }
+
+    .sensor-card::after{
+      content:"";
+      position:absolute;
+      inset:auto -40px -40px auto;
+      width:120px;height:120px;
+      border-radius:999px;
+      opacity:.2;
+      filter:blur(20px);
+    }
+
+    .sensor-card.temp::after{background:var(--danger)}
+    .sensor-card.hum::after{background:var(--cyan)}
+    .sensor-card.light::after{background:var(--warning)}
+
+    .sensor-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .sensor-name{
+      color:var(--muted);
+      font-weight:600;
+      font-size:.96rem;
+    }
+
+    .sensor-icon{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      font-size:1.2rem;
+      font-weight:800;
+      background:linear-gradient(135deg, rgba(0,212,255,.15), rgba(187,102,255,.1));
+      border:1.5px solid #00d4ff;
+      box-shadow:0 0 15px rgba(0,212,255,.3), inset 0 0 10px rgba(0,212,255,.1);
+    }
+
+    .sensor-value{
+      margin-top:16px;
+      font-size:clamp(1.8rem,4vw,2.6rem);
+      font-weight:800;
+      letter-spacing:.3px;
+      background:linear-gradient(90deg, #00ffff, #00d4ff);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .sensor-sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .chart-wrap{
+      position:relative;
+      min-height:360px;
+    }
+
+    .control-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+    }
+
+    .control-card{
+      padding:18px;
+      border-radius:20px;
+      background:linear-gradient(135deg, rgba(0,212,255,.04), rgba(187,102,255,.02));
+      border:1.5px solid #1a3d52;
+      transition:var(--transition);
+      box-shadow:0 0 20px rgba(0,212,255,.1), inset 0 0 15px rgba(0,212,255,.02);
+    }
+
+    .control-card:hover{
+      border-color:#00d4ff;
+      box-shadow:0 0 40px rgba(0,212,255,.2), inset 0 0 15px rgba(0,212,255,.05);
+    }
+
+    .control-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .control-title h4{
+      margin:0;
+      font-size:1.02rem;
+    }
+
+    .control-title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .switch{
+      position:relative;
+      width:64px;height:34px;flex:0 0 auto;
+    }
+
+    .switch input{display:none}
+    .slider{
+      position:absolute;inset:0;
+      background:linear-gradient(90deg, #0a1830, #1a2847);
+      border-radius:999px;
+      border:1.5px solid #2a4060;
+      transition:var(--transition);
+      cursor:pointer;
+    }
+
+    .slider::before{
+      content:"";
+      position:absolute;
+      width:26px;height:26px;
+      left:4px;top:3px;
+      border-radius:50%;
+      background:linear-gradient(135deg, #ffffff, #e0e0ff);
+      transition:var(--transition);
+      box-shadow:0 3px 12px rgba(0,0,0,.4);
+    }
+
+    .switch input:checked + .slider{
+      background:linear-gradient(90deg,#0066ff,var(--primary));
+      border-color:var(--primary);
+      box-shadow:inset 0 0 20px rgba(0,212,255,.2), 0 0 20px rgba(0,212,255,.3);
+    }
+
+    .switch input:checked + .slider::before{
+      transform:translateX(29px);
+      box-shadow:0 3px 12px rgba(0,212,255,.5);
+    }
+
+    .control-state{
+      margin-top:6px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      font-size:.94rem;
+      font-weight:600;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+    }
+
+    .form-group{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .form-group label{
+      font-size:.95rem;
+      color:#dbe7ff;
+      font-weight:600;
+    }
+
+    .input,.select,.textarea{
+      width:100%;
+      border-radius:14px;
+      border:1.5px solid #1a3d52;
+      background:rgba(10, 14, 26, 0.7);
+      color:var(--text);
+      padding:12px 14px;
+      outline:none;
+      transition:var(--transition);
+    }
+
+    .input:focus,.select:focus,.textarea:focus{
+      border-color:var(--primary);
+      background:rgba(0, 212, 255, 0.05);
+      box-shadow:0 0 0 6px rgba(0,212,255,.15), inset 0 0 10px rgba(0,212,255,.05);
+    }
+
+    .textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    .checkbox-row,.days-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1.5px solid #1a3d52;
+      background:rgba(10, 14, 26, 0.6);
+      color:var(--text);
+      cursor:pointer;
+      user-select:none;
+      transition:var(--transition);
+    }
+
+    .chip input{accent-color:var(--primary)}
+    .chip.active{
+      border-color:var(--primary);
+      background:rgba(0,212,255,.1);
+      box-shadow:0 0 20px rgba(0,212,255,.25), inset 0 0 15px rgba(0,212,255,.08);
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .small{
+      font-size:.9rem;
+    }
+
+    .timer-list{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .timer-item{
+      padding:14px;
+      border-radius:16px;
+      border:1.5px solid #1a3d52;
+      background:rgba(10, 14, 26, 0.5);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      transition:var(--transition);
+      box-shadow:0 0 15px rgba(0,212,255,.08);
+    }
+
+    .timer-item:hover{
+      border-color:#00d4ff;
+      box-shadow:0 0 25px rgba(0,212,255,.15);
+    }
+
+    .timer-meta{
+      display:grid;
+      gap:4px;
+    }
+
+    .timer-meta strong{
+      font-size:1rem;
+    }
+
+    .timer-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .empty{
+      padding:18px;
+      border:1.5px dashed #1a3d52;
+      border-radius:18px;
+      color:var(--muted);
+      text-align:center;
+      background:rgba(0,212,255,.03);
+    }
+
+    .auth-shell{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:22px;
+    }
+
+    .auth-card{
+      width:min(100%,520px);
+      padding:26px;
+      border-radius:28px;
+      background:linear-gradient(135deg, rgba(0,212,255,.05), rgba(187,102,255,.03));
+      border:1.5px solid #1a3d52;
+      box-shadow:0 0 50px rgba(0,212,255,.15), inset 0 0 30px rgba(0,212,255,.02), 0 20px 60px rgba(0,0,0,.6);
+      backdrop-filter:blur(20px);
+    }
+
+    .auth-card h2{
+      margin:0 0 8px;
+      font-size:1.8rem;
+    }
+
+    .auth-card p{
+      margin:0 0 22px;
+      color:var(--muted);
+    }
+
+    .auth-tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:18px;
+    }
+
+    .tab-btn{
+      border-radius:14px;
+      padding:12px 14px;
+      border:1.5px solid #1a3d52;
+      background:rgba(10, 14, 26, 0.6);
+      color:var(--muted);
+      font-weight:700;
+      cursor:pointer;
+      transition:var(--transition);
+    }
+
+    .tab-btn.active{
+      background:linear-gradient(135deg,#0066ff,var(--primary));
+      color:white;
+      border-color:var(--primary);
+      box-shadow:0 0 25px rgba(0,212,255,.4);
+    }
+
+    .auth-footer{
+      margin-top:16px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .toast-wrap{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      display:grid;
+      gap:10px;
+      z-index:1000;
+      max-width:min(92vw,380px);
+    }
+
+    .toast{
+      padding:14px 16px;
+      border-radius:16px;
+      color:white;
+      box-shadow:0 0 30px rgba(0,0,0,.6), 0 0 20px rgba(0,0,0,.2);
+      border:1.5px solid rgba(255,255,255,.15);
+      animation:slideIn .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter:blur(10px);
+    }
+
+    .toast.success{
+      background:linear-gradient(135deg,#006633,#00ff88);
+      box-shadow:0 0 30px rgba(0,255,136,.4);
+      border-color:rgba(0,255,136,.3);
+    }
+    .toast.error{
+      background:linear-gradient(135deg,#660033,#ff0055);
+      box-shadow:0 0 30px rgba(255,0,85,.4);
+      border-color:rgba(255,0,85,.3);
+    }
+    .toast.info{
+      background:linear-gradient(135deg,#003366,#0088ff);
+      box-shadow:0 0 30px rgba(0,136,255,.4);
+      border-color:rgba(0,136,255,.3);
+    }
+    .toast.warn{
+      background:linear-gradient(135deg,#663300,#ffaa00);
+      box-shadow:0 0 30px rgba(255,170,0,.4);
+      border-color:rgba(255,170,0,.3);
+    }
+
+    @keyframes slideIn{
+      from{transform:translateY(10px);opacity:0}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(3, 6, 18, 0.8);
+      backdrop-filter:blur(12px);
+      display:grid;
+      place-items:center;
+      padding:16px;
+      z-index:900;
+      animation:fadeIn .3s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+
+    .modal-card{
+      width:min(100%,760px);
+      background:linear-gradient(135deg, rgba(0,212,255,.04), rgba(187,102,255,.02));
+      border:1.5px solid #1a3d52;
+      border-radius:28px;
+      box-shadow:0 0 60px rgba(0,212,255,.2), inset 0 0 30px rgba(0,212,255,.03), 0 20px 60px rgba(0,0,0,.6);
+      padding:22px;
+      backdrop-filter:blur(20px);
+    }
+
+    .modal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .modal-head h3{
+      margin:0;
+      font-size:1.3rem;
+    }
+
+    .close-btn{
+      width:42px;height:42px;border-radius:12px;
+      border:1.5px solid #1a3d52;
+      background:rgba(10, 14, 26, 0.6);
+      color:var(--text);
+      cursor:pointer;
+      font-size:1.1rem;
+      transition:var(--transition);
+    }
+
+    .close-btn:hover{
+      border-color:#00d4ff;
+      box-shadow:0 0 20px rgba(0,212,255,.3);
+    }
+
+    .status-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    .mini{
+      padding:14px;
+      border-radius:18px;
+      border:1.5px solid #1a3d52;
+      background:rgba(0,212,255,.04);
+      transition:var(--transition);
+      box-shadow:0 0 15px rgba(0,212,255,.08), inset 0 0 10px rgba(0,212,255,.02);
+    }
+
+    .mini:hover{
+      border-color:#00d4ff;
+      box-shadow:0 0 25px rgba(0,212,255,.15), inset 0 0 10px rgba(0,212,255,.05);
+    }
+
+    .mini .label{
+      color:var(--muted);
+      font-size:.9rem;
+      margin-bottom:8px;
+    }
+
+    .mini .value{
+      font-size:1.15rem;
+      font-weight:800;
+    }
+
+    code.inline{
+      background:rgba(0,212,255,.08);
+      border:1.5px solid #1a3d52;
+      padding:2px 8px;
+      border-radius:999px;
+      color:#00ffff;
+    }
+
+    @keyframes slideIn{
+      from{transform:translateY(10px);opacity:0}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    @keyframes glow{
+      0%, 100%{text-shadow:0 0 10px rgba(0,212,255,.5)}
+      50%{text-shadow:0 0 20px rgba(0,212,255,.8)}
+    }
+
+    .sensor-value{animation:glow 2s ease-in-out infinite}
+
+    @media (max-width:1100px){
+      .dashboard{grid-template-columns:1fr}
+    }
+
+    @media (max-width:860px){
+      .sensor-grid,.control-grid,.form-grid,.status-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:560px){
+      .app{padding:14px}
+      .card,.auth-card,.modal-card{padding:16px}
+      .topbar{align-items:flex-start}
+      .pill{width:100%;justify-content:center}
+      .btn{width:100%}
+      .top-actions{width:100%}
+      .top-actions > *{flex:1 1 100%}
+    }
+  </style>
+</head>
+<body>
+  <div id="authView" class="auth-shell">
+    <div class="auth-card">
+      <div class="brand" style="margin-bottom:16px;">
+        <div class="brand-logo">IoT</div>
+        <div>
+          <h2>Smart IoT Dashboard</h2>
+          <p>ล็อกอินด้วย Firebase Auth และเชื่อมต่อกับ Realtime Database</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="tabLogin" class="tab-btn active" type="button">เข้าสู่ระบบ</button>
+        <button id="tabRegister" class="tab-btn" type="button">สมัครสมาชิก</button>
+      </div>
+
+      <form id="authForm" class="grid" style="gap:14px;">
+        <div class="form-group">
+          <label for="authEmail">อีเมล</label>
+          <input id="authEmail" class="input" type="email" placeholder="example@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="authPassword">รหัสผ่าน</label>
+          <input id="authPassword" class="input" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" required />
+        </div>
+        <button id="authSubmitBtn" class="btn primary" type="submit">เข้าสู่ระบบ</button>
+      </form>
+
+      <div class="auth-footer">
+        <span>ตั้งค่าครั้งแรกก่อนใช้งานได้ที่ปุ่มด้านล่าง</span>
+        <button id="openConfigFromAuth" class="btn ghost" type="button">ตั้งค่า Firebase</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appView" class="hidden">
+    <div class="app">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-logo">IoT</div>
+          <div>
+            <h1>Smart IoT Dashboard</h1>
+            <p>ควบคุมอุปกรณ์, ดูกราฟย้อนหลัง, จัดการ Timer และ Smart Auto</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <div class="pill" id="hardwareBadge">
+            <span class="dot" id="hardwareDot"></span>
+            <span id="hardwareText">กำลังรอข้อมูลฮาร์ดแวร์...</span>
+          </div>
+          <button id="openConfigBtn" class="btn" type="button">ตั้งค่า Firebase</button>
+          <button id="logoutBtn" class="btn danger" type="button">ออกจากระบบ</button>
+        </div>
+      </div>
+
+      <div class="grid dashboard">
+        <div class="grid" style="gap:18px;">
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2>ข้อมูลเซ็นเซอร์ล่าสุด</h2>
+                <p>ดึงจาก <code class="inline">/iot_system/sensors</code></p>
+              </div>
+              <div class="muted small" id="lastUpdateText">ยังไม่มีข้อมูลล่าสุด</div>
+            </div>
+
+            <div class="sensor-grid">
+              <div class="sensor-card temp">
+                <div class="sensor-top">
+                  <div class="sensor-name">อุณหภูมิ</div>
+                  <div class="sensor-icon">🌡️</div>
+                </div>
+                <div class="sensor-value" id="tempValue">--.- °C</div>
+                <div class="sensor-sub" id="tempHint">รอข้อมูลจากบอร์ด</div>
+              </div>
+
+              <div class="sensor-card hum">
+                <div class="sensor-top">
+                  <div class="sensor-name">ความชื้น</div>
+                  <div class="sensor-icon">💧</div>
+                </div>
+                <div class="sensor-value" id="humValue">--.- %</div>
+                <div class="sensor-sub" id="humHint">รอข้อมูลจากบอร์ด</div>
+              </div>
+
+              <div class="sensor-card light">
+                <div class="sensor-top">
+                  <div class="sensor-name">ความสว่าง</div>
+                  <div class="sensor-icon">💡</div>
+                </div>
+                <div class="sensor-value" id="lightValue">-- %</div>
+                <div class="sensor-sub" id="lightHint">รอข้อมูลจากบอร์ด</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2>กราฟย้อนหลัง 60 รายการ</h2>
+                <p>อ่านจาก <code class="inline">/iot_system/history</code></p>
+              </div>
+              <button id="refreshHistoryBtn" class="btn ghost" type="button">รีเฟรชกราฟ</button>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="historyChart"></canvas>
+            </div>
+          </section>
+        </div>
+
+        <div class="grid" style="gap:18px;">
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2>ควบคุมอุปกรณ์</h2>
+                <p>เขียนไปที่ <code class="inline">/iot_system/controls</code></p>
+              </div>
+            </div>
+
+            <div class="control-grid">
+              <div class="control-card">
+                <div class="control-title">
+                  <div>
+                    <h4>หลอดไฟ (Relay 1)</h4>
+                    <p>รีเลย์ขา 1 สำหรับหลอดไฟ</p>
+                  </div>
+                  <label class="switch">
+                    <input id="relay1Switch" type="checkbox" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="control-state">
+                  <span class="dot" id="relay1Dot"></span>
+                  <span id="relay1StateText">สถานะ: ปิด</span>
+                </div>
+              </div>
+
+              <div class="control-card">
+                <div class="control-title">
+                  <div>
+                    <h4>พัดลม (Relay 2)</h4>
+                    <p>รีเลย์ขา 2 สำหรับพัดลม</p>
+                  </div>
+                  <label class="switch">
+                    <input id="relay2Switch" type="checkbox" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="control-state">
+                  <span class="dot" id="relay2Dot"></span>
+                  <span id="relay2StateText">สถานะ: ปิด</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2>ระบบอัตโนมัติ (Smart Auto)</h2>
+                <p>บันทึกลง <code class="inline">/iot_system/settings</code></p>
+              </div>
+            </div>
+
+            <form id="smartAutoForm" class="grid" style="gap:14px;">
+              <div class="checkbox-row">
+                <label class="chip" id="chipAutoMode">
+                  <input id="autoModeInput" type="checkbox" />
+                  <span>เปิดใช้งาน Auto Mode</span>
+                </label>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="alertTempInput">แจ้งเตือนอุณหภูมิ (°C)</label>
+                  <input id="alertTempInput" class="input" type="number" step="0.1" placeholder="เช่น 35" />
+                </div>
+
+                <div class="form-group">
+                  <label for="alertLightInput">แจ้งเตือนความสว่าง (%)</label>
+                  <input id="alertLightInput" class="input" type="number" step="1" min="0" max="100" placeholder="เช่น 20" />
+                </div>
+
+                <div class="form-group">
+                  <label for="autoFanTempInput">อุณหภูมิเปิดพัดลมอัตโนมัติ (°C)</label>
+                  <input id="autoFanTempInput" class="input" type="number" step="0.1" placeholder="เช่น 30" />
+                </div>
+
+                <div class="form-group">
+                  <label for="autoPumpHumInput">ความชื้นเปิดปั๊มอัตโนมัติ (%)</label>
+                  <input id="autoPumpHumInput" class="input" type="number" step="0.1" placeholder="เช่น 40" />
+                </div>
+
+                <div class="form-group">
+                  <label for="timezoneOffsetInput">Timezone Offset (วินาที)</label>
+                  <input id="timezoneOffsetInput" class="input" type="number" step="1" placeholder="เช่น 25200 สำหรับ UTC+7" />
+                </div>
+              </div>
+
+              <button class="btn primary" type="submit">บันทึก Smart Auto</button>
+            </form>
+          </section>
+        </div>
+      </div>
+
+      <div class="grid" style="gap:18px;margin-top:18px;">
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2>ตั้งเวลา (Timer)</h2>
+              <p>เพิ่มรายการลง <code class="inline">/iot_system/timers</code></p>
+            </div>
+          </div>
+
+          <form id="timerForm" class="grid" style="gap:14px;">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="timerTime">เวลา</label>
+                <input id="timerTime" class="input" type="time" required />
+              </div>
+
+              <div class="form-group">
+                <label for="timerDevice">อุปกรณ์</label>
+                <select id="timerDevice" class="select" required>
+                  <option value="relay_1">หลอดไฟ (relay_1)</option>
+                  <option value="relay_2">พัดลม (relay_2)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="timerAction">คำสั่ง</label>
+                <select id="timerAction" class="select" required>
+                  <option value="on">เปิด</option>
+                  <option value="off">ปิด</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="timerActive">สถานะใช้งาน</label>
+                <select id="timerActive" class="select" required>
+                  <option value="true">ใช้งาน</option>
+                  <option value="false">ไม่ใช้งาน</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>วันทำงาน</label>
+              <div class="days-row">
+                <label class="chip"><input type="checkbox" class="day-check" value="0"> อา</label>
+                <label class="chip"><input type="checkbox" class="day-check" value="1"> จ</label>
+                <label class="chip"><input type="checkbox" class="day-check" value="2"> อ</label>
+                <label class="chip"><input type="checkbox" class="day-check" value="3"> พ</label>
+                <label class="chip"><input type="checkbox" class="day-check" value="4"> พฤ</label>
+                <label class="chip"><input type="checkbox" class="day-check" value="5"> ศ</label>
+                <label class="chip"><input type="checkbox" class="day-check" value="6"> ส</label>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn primary" type="submit">เพิ่ม Timer</button>
+              <button id="clearTimerFormBtn" class="btn ghost" type="button">ล้างฟอร์ม</button>
+            </div>
+          </form>
+
+          <div style="margin-top:18px;">
+            <div class="section-head" style="margin-bottom:10px;">
+              <div>
+                <h3 style="margin:0;">รายการ Timer</h3>
+                <p>แก้ไขเฉพาะสถานะเปิด/ปิด หรือลบรายการได้จากด้านล่าง</p>
+              </div>
+              <button id="refreshTimersBtn" class="btn ghost" type="button">รีเฟรชรายการ</button>
+            </div>
+
+            <div id="timerList" class="timer-list">
+              <div class="empty">ยังไม่มีรายการ Timer</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2>สรุปสถานะระบบ</h2>
+              <p>ตรวจสอบการซิงค์ข้อมูลจากฮาร์ดแวร์และค่าปัจจุบัน</p>
+            </div>
+          </div>
+
+          <div class="status-grid">
+            <div class="mini">
+              <div class="label">สถานะบอร์ด</div>
+              <div class="value" id="summaryBoardStatus">ยังไม่ซิงค์</div>
+            </div>
+            <div class="mini">
+              <div class="label">รีเลย์ 1</div>
+              <div class="value" id="summaryRelay1">ปิด</div>
+            </div>
+            <div class="mini">
+              <div class="label">รีเลย์ 2</div>
+              <div class="value" id="summaryRelay2">ปิด</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="configModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>ตั้งค่า Firebase สำหรับใช้งานครั้งแรก</h3>
+        <button id="closeConfigBtn" class="close-btn" type="button">✕</button>
+      </div>
+
+      <div class="grid" style="gap:14px;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="cfgApiKey">API Key</label>
+            <input id="cfgApiKey" class="input" type="text" placeholder="AIza..." />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgAuthDomain">Auth Domain</label>
+            <input id="cfgAuthDomain" class="input" type="text" placeholder="your-project.firebaseapp.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgDatabaseURL">Database URL</label>
+            <input id="cfgDatabaseURL" class="input" type="text" placeholder="https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app" />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgProjectId">Project ID</label>
+            <input id="cfgProjectId" class="input" type="text" placeholder="your-project-id" />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgAppId">App ID</label>
+            <input id="cfgAppId" class="input" type="text" placeholder="1:123456789:web:xxxxxx" />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgStorageBucket">Storage Bucket (ถ้ามี)</label>
+            <input id="cfgStorageBucket" class="input" type="text" placeholder="your-project.appspot.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgMessagingSenderId">Messaging Sender ID (ถ้ามี)</label>
+            <input id="cfgMessagingSenderId" class="input" type="text" placeholder="123456789" />
+          </div>
+
+          <div class="form-group">
+            <label for="cfgMeasurementId">Measurement ID (ถ้ามี)</label>
+            <input id="cfgMeasurementId" class="input" type="text" placeholder="G-XXXXXXX" />
+          </div>
+        </div>
+
+        <div class="muted small">
+          ค่าเหล่านี้จะถูกบันทึกลง LocalStorage ในเบราว์เซอร์เครื่องนี้เท่านั้น
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button id="saveConfigBtn" class="btn primary" type="button">บันทึกและโหลดระบบ</button>
+          <button id="resetConfigBtn" class="btn danger" type="button">ล้างค่า Firebase</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastWrap" class="toast-wrap"></div>
+
+  <script type="module">
+    let app = null;
+    let auth = null;
+    let db = null;
+
+    let firebaseModules = null;
+    let historyChart = null;
+
+    let unsubAuth = null;
+    let unsubSensors = null;
+    let unsubControls = null;
+    let unsubSettings = null;
+    let unsubTimers = null;
+
+    let currentMode = "login";
+    let currentUser = null;
+    let lastSensorTimestamp = null;
+    let latestSensorsCache = null;
+    let latestControlsCache = { relay_1:false, relay_2:false };
+    let latestSettingsCache = null;
+    let hardwareCheckInterval = null;
+    let optimisticLock = {
+      relay_1:false,
+      relay_2:false
+    };
+
+    const STORAGE_KEY = "smart_iot_firebase_config_v1";
+    const DOM = {};
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      bindDOM();
+      bindUI();
+      initStaticChart();
+      loadConfigToModal();
+      await bootstrapFirebaseIfPossible();
+    });
+
+    function bindDOM(){
+      const ids = [
+        "authView","appView","tabLogin","tabRegister","authForm","authEmail","authPassword","authSubmitBtn",
+        "openConfigFromAuth","openConfigBtn","logoutBtn","configModal","closeConfigBtn","saveConfigBtn","resetConfigBtn",
+        "cfgApiKey","cfgAuthDomain","cfgDatabaseURL","cfgProjectId","cfgAppId","cfgStorageBucket","cfgMessagingSenderId","cfgMeasurementId",
+        "hardwareBadge","hardwareDot","hardwareText","lastUpdateText",
+        "tempValue","humValue","lightValue","tempHint","humHint","lightHint",
+        "relay1Switch","relay2Switch","relay1StateText","relay2StateText","relay1Dot","relay2Dot",
+        "smartAutoForm","autoModeInput","alertTempInput","alertLightInput","autoFanTempInput","autoPumpHumInput","timezoneOffsetInput","chipAutoMode",
+        "timerForm","timerTime","timerDevice","timerAction","timerActive","clearTimerFormBtn","timerList","refreshTimersBtn",
+        "summaryBoardStatus","summaryRelay1","summaryRelay2","refreshHistoryBtn","toastWrap"
+      ];
+      ids.forEach(id => DOM[id] = document.getElementById(id));
+    }
+
+    function bindUI(){
+      DOM.tabLogin.addEventListener("click", () => setAuthMode("login"));
+      DOM.tabRegister.addEventListener("click", () => setAuthMode("register"));
+
+      DOM.authForm.addEventListener("submit", handleAuthSubmit);
+      DOM.openConfigFromAuth.addEventListener("click", openConfigModal);
+      DOM.openConfigBtn.addEventListener("click", openConfigModal);
+      DOM.closeConfigBtn.addEventListener("click", closeConfigModal);
+
+      DOM.saveConfigBtn.addEventListener("click", async () => {
+        saveConfigFromModal();
+        closeConfigModal();
+        await bootstrapFirebaseIfPossible(true);
+      });
+
+      DOM.resetConfigBtn.addEventListener("click", async () => {
+        localStorage.removeItem(STORAGE_KEY);
+        destroyFirebaseListeners();
+        showToast("ล้างค่า Firebase ในเครื่องนี้แล้ว", "warn");
+        setAppReady(false);
+        await bootstrapFirebaseIfPossible(false);
+      });
+
+      DOM.logoutBtn.addEventListener("click", async () => {
+        if(!auth || !firebaseModules) return;
+        try{
+          await firebaseModules.signOut(auth);
+          showToast("ออกจากระบบแล้ว", "info");
+        }catch(err){
+          showToast("ออกจากระบบไม่สำเร็จ: " + humanError(err), "error");
+        }
+      });
+
+      DOM.relay1Switch.addEventListener("change", () => toggleRelay("relay_1", DOM.relay1Switch.checked));
+      DOM.relay2Switch.addEventListener("change", () => toggleRelay("relay_2", DOM.relay2Switch.checked));
+
+      DOM.smartAutoForm.addEventListener("submit", saveSmartAutoSettings);
+      DOM.autoModeInput.addEventListener("change", () => {
+        DOM.chipAutoMode.classList.toggle("active", DOM.autoModeInput.checked);
+      });
+
+      document.querySelectorAll(".chip input").forEach(inp => {
+        inp.addEventListener("change", () => {
+          const parent = inp.closest(".chip");
+          if(parent) parent.classList.toggle("active", inp.checked);
+        });
+      });
+
+      DOM.timerForm.addEventListener("submit", addTimerItem);
+      DOM.clearTimerFormBtn.addEventListener("click", clearTimerForm);
+      DOM.refreshTimersBtn.addEventListener("click", subscribeTimers);
+      DOM.refreshHistoryBtn.addEventListener("click", loadHistoryChartData);
+    }
+
+    function setAuthMode(mode){
+      currentMode = mode;
+      const isLogin = mode === "login";
+      DOM.tabLogin.classList.toggle("active", isLogin);
+      DOM.tabRegister.classList.toggle("active", !isLogin);
+      DOM.authSubmitBtn.textContent = isLogin ? "เข้าสู่ระบบ" : "สมัครสมาชิก";
+    }
+
+    function openConfigModal(){
+      loadConfigToModal();
+      DOM.configModal.classList.remove("hidden");
+    }
+
+    function closeConfigModal(){
+      DOM.configModal.classList.add("hidden");
+    }
+
+    function getSavedConfig(){
+      try{
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      }catch{
+        return {};
+      }
+    }
+
+    function loadConfigToModal(){
+      const cfg = getSavedConfig();
+      DOM.cfgApiKey.value = cfg.apiKey || "";
+      DOM.cfgAuthDomain.value = cfg.authDomain || "";
+      DOM.cfgDatabaseURL.value = cfg.databaseURL || "";
+      DOM.cfgProjectId.value = cfg.projectId || "";
+      DOM.cfgAppId.value = cfg.appId || "";
+      DOM.cfgStorageBucket.value = cfg.storageBucket || "";
+      DOM.cfgMessagingSenderId.value = cfg.messagingSenderId || "";
+      DOM.cfgMeasurementId.value = cfg.measurementId || "";
+    }
+
+    function saveConfigFromModal(){
+      const cfg = {
+        apiKey: DOM.cfgApiKey.value.trim(),
+        authDomain: DOM.cfgAuthDomain.value.trim(),
+        databaseURL: DOM.cfgDatabaseURL.value.trim(),
+        projectId: DOM.cfgProjectId.value.trim(),
+        appId: DOM.cfgAppId.value.trim(),
+        storageBucket: DOM.cfgStorageBucket.value.trim(),
+        messagingSenderId: DOM.cfgMessagingSenderId.value.trim(),
+        measurementId: DOM.cfgMeasurementId.value.trim()
+      };
+
+      if(!cfg.apiKey || !cfg.authDomain || !cfg.databaseURL || !cfg.projectId || !cfg.appId){
+        showToast("กรอก API Key, Auth Domain, Database URL, Project ID และ App ID ให้ครบก่อน", "warn");
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+      showToast("บันทึกค่า Firebase เรียบร้อย", "success");
+    }
+
+    async function bootstrapFirebaseIfPossible(reloadNotice = false){
+      const cfg = getSavedConfig();
+
+      if(!cfg.apiKey || !cfg.authDomain || !cfg.databaseURL || !cfg.projectId || !cfg.appId){
+        setAppReady(false);
+        showToast("ยังไม่ได้ตั้งค่า Firebase ในเครื่องนี้", "warn");
+        return;
+      }
+
+      try{
+        destroyFirebaseListeners();
+
+        const {
+            initializeApp,
+            getApps,
+            getApp
+        } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+
+        const authMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+        const dbMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js");
+
+        firebaseModules = {
+          ...authMod,
+          ...dbMod
+        };
+
+        const firebaseConfig = {
+            apiKey: cfg.apiKey,
+            authDomain: cfg.authDomain,
+            databaseURL: cfg.databaseURL,
+            projectId: cfg.projectId,
+            appId: cfg.appId,
+            storageBucket: cfg.storageBucket || undefined,
+            messagingSenderId: cfg.messagingSenderId || undefined,
+            measurementId: cfg.measurementId || undefined
+       };
+
+app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+        auth = authMod.getAuth(app);
+        db = dbMod.getDatabase(app);
+
+        if(unsubAuth) unsubAuth();
+        unsubAuth = authMod.onAuthStateChanged(auth, async (user) => {
+          currentUser = user || null;
+          if(user){
+            setAppReady(true);
+            showToast("เข้าสู่ระบบสำเร็จ", "success");
+            await ensureDefaultNodes();
+            startRealtimeListeners();
+          }else{
+            setAppReady(false);
+          }
+        });
+
+        if(reloadNotice){
+          showToast("โหลดระบบ Firebase ใหม่แล้ว", "info");
+        }
+      }catch(err){
+        console.error(err);
+        showToast("เชื่อม Firebase ไม่สำเร็จ: " + humanError(err), "error");
+        setAppReady(false);
+      }
+    }
+
+    function setAppReady(isReady){
+      if(isReady){
+        DOM.authView.classList.add("hidden");
+        DOM.appView.classList.remove("hidden");
+      }else{
+        DOM.appView.classList.add("hidden");
+        DOM.authView.classList.remove("hidden");
+      }
+    }
+
+    async function handleAuthSubmit(e){
+      e.preventDefault();
+
+      if(!auth || !firebaseModules){
+        showToast("กรุณาตั้งค่า Firebase ก่อนใช้งาน", "warn");
+        openConfigModal();
+        return;
+      }
+
+      const email = DOM.authEmail.value.trim();
+      const password = DOM.authPassword.value.trim();
+
+      if(!email || !password){
+        showToast("กรอกอีเมลและรหัสผ่านให้ครบ", "warn");
+        return;
+      }
+
+      DOM.authSubmitBtn.disabled = true;
+      DOM.authSubmitBtn.textContent = currentMode === "login" ? "กำลังเข้าสู่ระบบ..." : "กำลังสมัครสมาชิก...";
+
+      try{
+        if(currentMode === "login"){
+          await firebaseModules.signInWithEmailAndPassword(auth, email, password);
+        }else{
+          await firebaseModules.createUserWithEmailAndPassword(auth, email, password);
+          showToast("สมัครสมาชิกสำเร็จ", "success");
+        }
+      }catch(err){
+        showToast(humanError(err), "error");
+      }finally{
+        DOM.authSubmitBtn.disabled = false;
+        DOM.authSubmitBtn.textContent = currentMode === "login" ? "เข้าสู่ระบบ" : "สมัครสมาชิก";
+      }
+    }
+
+    async function ensureDefaultNodes(){
+      if(!db || !firebaseModules) return;
+
+      const { ref, get, update, push, set, serverTimestamp } = firebaseModules;
+
+      try{
+        const rootPath = "iot_system";
+        const sensorsRef = ref(db, `${rootPath}/sensors`);
+        const controlsRef = ref(db, `${rootPath}/controls`);
+        const settingsRef = ref(db, `${rootPath}/settings`);
+        const timersRef = ref(db, `${rootPath}/timers`);
+        const historyRef = ref(db, `${rootPath}/history`);
+
+        const [sSnap, cSnap, setSnap, tSnap, hSnap] = await Promise.all([
+          get(sensorsRef), get(controlsRef), get(settingsRef), get(timersRef), get(historyRef)
+        ]);
+
+        const updates = {};
+
+        if(!sSnap.exists()){
+          updates[`${rootPath}/sensors`] = {
+            temperature: 0,
+            humidity: 0,
+            light_percent: 0,
+            timestamp: Date.now()
+          };
+        }
+
+        if(!cSnap.exists()){
+          updates[`${rootPath}/controls`] = {
+            relay_1: false,
+            relay_2: false
+          };
+        }
+
+        if(!setSnap.exists()){
+          updates[`${rootPath}/settings`] = {
+            alert_temp: 35,
+            alert_light: 20,
+            auto_mode: false,
+            auto_fan_temp: 30,
+            auto_pump_hum: 40,
+            timezone_offset: 25200
+          };
+        }
+
+        if(!tSnap.exists()){
+          updates[`${rootPath}/timers`] = {};
+        }
+
+        if(!hSnap.exists()){
+          const sampleKey = push(historyRef).key;
+          updates[`${rootPath}/history/${sampleKey}`] = {
+            temperature: 0,
+            humidity: 0,
+            light_percent: 0,
+            timestamp: Date.now()
+          };
+        }
+
+        if(Object.keys(updates).length){
+          await update(ref(db), updates);
+        }
+      }catch(err){
+        console.error("ensureDefaultNodes error:", err);
+      }
+    }
+
+    function startRealtimeListeners(){
+      subscribeSensors();
+      subscribeControls();
+      subscribeSettings();
+      subscribeTimers();
+      loadHistoryChartData();
+
+      if(hardwareCheckInterval) clearInterval(hardwareCheckInterval);
+      hardwareCheckInterval = setInterval(updateHardwareStatus, 1000);
+    }
+
+    function destroyFirebaseListeners(){
+      try{
+        if(unsubSensors) unsubSensors();
+        if(unsubControls) unsubControls();
+        if(unsubSettings) unsubSettings();
+        if(unsubTimers) unsubTimers();
+        if(unsubAuth) unsubAuth();
+
+        unsubSensors = null;
+        unsubControls = null;
+        unsubSettings = null;
+        unsubTimers = null;
+        unsubAuth = null;
+
+        if(hardwareCheckInterval) clearInterval(hardwareCheckInterval);
+        hardwareCheckInterval = null;
+      }catch(err){
+        console.warn(err);
+      }
+    }
+
+    function subscribeSensors(){
+      if(!db || !firebaseModules) return;
+      const { ref, onValue } = firebaseModules;
+
+      if(unsubSensors) unsubSensors();
+      unsubSensors = onValue(ref(db, "iot_system/sensors"), (snap) => {
+        const data = snap.val();
+        latestSensorsCache = data || null;
+
+        if(data){
+          updateSensorUI(data);
+          loadHistoryChartData(false);
+        }
+      }, (err) => {
+        showToast("อ่านเซ็นเซอร์ไม่สำเร็จ: " + humanError(err), "error");
+      });
+    }
+
+    function subscribeControls(){
+      if(!db || !firebaseModules) return;
+      const { ref, onValue } = firebaseModules;
+
+      if(unsubControls) unsubControls();
+      unsubControls = onValue(ref(db, "iot_system/controls"), (snap) => {
+        const data = snap.val() || { relay_1:false, relay_2:false };
+        latestControlsCache = data;
+        syncControlsUIFromServer(data);
+      }, (err) => {
+        showToast("อ่าน controls ไม่สำเร็จ: " + humanError(err), "error");
+      });
+    }
+
+    function subscribeSettings(){
+      if(!db || !firebaseModules) return;
+      const { ref, onValue } = firebaseModules;
+
+      if(unsubSettings) unsubSettings();
+      unsubSettings = onValue(ref(db, "iot_system/settings"), (snap) => {
+        const data = snap.val() || {};
+        latestSettingsCache = data;
+        syncSettingsUI(data);
+      }, (err) => {
+        showToast("อ่าน settings ไม่สำเร็จ: " + humanError(err), "error");
+      });
+    }
+
+    function subscribeTimers(){
+      if(!db || !firebaseModules) return;
+      const { ref, onValue } = firebaseModules;
+
+      if(unsubTimers) unsubTimers();
+      unsubTimers = onValue(ref(db, "iot_system/timers"), (snap) => {
+        renderTimerList(snap.val() || {});
+      }, (err) => {
+        showToast("อ่าน timers ไม่สำเร็จ: " + humanError(err), "error");
+      });
+    }
+
+    function updateSensorUI(data){
+      const temperature = Number(data.temperature ?? 0);
+      const humidity = Number(data.humidity ?? 0);
+      const lightPercent = Number(data.light_percent ?? 0);
+
+      DOM.tempValue.textContent = `${temperature.toFixed(1)} °C`;
+      DOM.humValue.textContent = `${humidity.toFixed(1)} %`;
+      DOM.lightValue.textContent = `${Math.round(lightPercent)} %`;
+
+      DOM.tempHint.textContent = temperature >= Number(latestSettingsCache?.alert_temp ?? Infinity)
+        ? "อุณหภูมิสูงกว่าค่าแจ้งเตือน"
+        : "อุณหภูมิอยู่ในช่วงใช้งาน";
+
+      DOM.humHint.textContent = latestSettingsCache?.auto_mode
+        ? `Auto Pump ที่ ${Number(latestSettingsCache?.auto_pump_hum ?? 0).toFixed(1)} %`
+        : "ยังไม่ได้เปิด Auto Mode";
+
+      DOM.lightHint.textContent = lightPercent <= Number(latestSettingsCache?.alert_light ?? -1)
+        ? "ความสว่างต่ำกว่าค่าแจ้งเตือน"
+        : "ความสว่างปกติ";
+
+      const ts = normalizeTimestamp(data.timestamp);
+      lastSensorTimestamp = ts;
+      DOM.lastUpdateText.textContent = ts
+        ? `อัปเดตล่าสุด: ${formatDateTime(ts)}`
+        : "ยังไม่มีเวลาล่าสุด";
+
+      updateHardwareStatus();
+    }
+
+    function normalizeTimestamp(ts){
+      if(ts == null) return null;
+      if(typeof ts === "number") return ts;
+      if(typeof ts === "string"){
+        const p = Date.parse(ts);
+        return Number.isNaN(p) ? null : p;
+      }
+      if(typeof ts === "object"){
+        if(typeof ts.seconds === "number") return ts.seconds * 1000;
+        if(typeof ts._seconds === "number") return ts._seconds * 1000;
+      }
+      return null;
+    }
+
+    function updateHardwareStatus(){
+      const now = Date.now();
+      let online = false;
+
+      if(typeof lastSensorTimestamp === "number"){
+        online = (now - lastSensorTimestamp) <= 15000;
+      }
+
+      DOM.hardwareDot.className = "dot " + (online ? "online" : "offline");
+      DOM.hardwareText.textContent = online ? "ซิงค์ฮาร์ดแวร์: ออนไลน์" : "ซิงค์ฮาร์ดแวร์: ออฟไลน์";
+      DOM.summaryBoardStatus.textContent = online ? "ออนไลน์" : "ออฟไลน์";
+    }
+
+    function syncControlsUIFromServer(data){
+      const relay1 = !!data.relay_1;
+      const relay2 = !!data.relay_2;
+
+      if(!optimisticLock.relay_1){
+        DOM.relay1Switch.checked = relay1;
+      }
+      if(!optimisticLock.relay_2){
+        DOM.relay2Switch.checked = relay2;
+      }
+
+      paintControlState("relay_1", relay1);
+      paintControlState("relay_2", relay2);
+    }
+
+    function paintControlState(key, isOn){
+      if(key === "relay_1"){
+        DOM.relay1StateText.textContent = `สถานะ: ${isOn ? "เปิด" : "ปิด"}`;
+        DOM.relay1Dot.className = "dot " + (isOn ? "online" : "offline");
+        DOM.summaryRelay1.textContent = isOn ? "เปิด" : "ปิด";
+      }else{
+        DOM.relay2StateText.textContent = `สถานะ: ${isOn ? "เปิด" : "ปิด"}`;
+        DOM.relay2Dot.className = "dot " + (isOn ? "online" : "offline");
+        DOM.summaryRelay2.textContent = isOn ? "เปิด" : "ปิด";
+      }
+    }
+
+    async function toggleRelay(key, value){
+      if(!db || !firebaseModules){
+        showToast("ยังไม่ได้เชื่อม Firebase", "error");
+        return;
+      }
+
+      optimisticLock[key] = true;
+
+      if(key === "relay_1"){
+        paintControlState(key, value);
+      }else{
+        paintControlState(key, value);
+      }
+
+      latestControlsCache[key] = value;
+
+      try{
+        const { ref, update } = firebaseModules;
+        await update(ref(db, "iot_system/controls"), { [key]: value });
+        showToast(`ส่งคำสั่ง ${key} = ${value ? "ON" : "OFF"} แล้ว`, "success");
+      }catch(err){
+        const prev = !value;
+        latestControlsCache[key] = prev;
+        if(key === "relay_1"){
+          DOM.relay1Switch.checked = prev;
+        }else{
+          DOM.relay2Switch.checked = prev;
+        }
+        paintControlState(key, prev);
+        showToast(`อัปเดต ${key} ไม่สำเร็จ: ${humanError(err)}`, "error");
+      }finally{
+        setTimeout(() => optimisticLock[key] = false, 400);
+      }
+    }
+
+    function syncSettingsUI(data){
+      DOM.autoModeInput.checked = !!data.auto_mode;
+      DOM.chipAutoMode.classList.toggle("active", !!data.auto_mode);
+
+      DOM.alertTempInput.value = data.alert_temp ?? "";
+      DOM.alertLightInput.value = data.alert_light ?? "";
+      DOM.autoFanTempInput.value = data.auto_fan_temp ?? "";
+      DOM.autoPumpHumInput.value = data.auto_pump_hum ?? "";
+      DOM.timezoneOffsetInput.value = data.timezone_offset ?? 25200;
+    }
+
+    async function saveSmartAutoSettings(e){
+      e.preventDefault();
+
+      if(!db || !firebaseModules){
+        showToast("ยังไม่ได้เชื่อม Firebase", "error");
+        return;
+      }
+
+      const payload = {
+        alert_temp: parseFloat(DOM.alertTempInput.value || "0"),
+        alert_light: parseInt(DOM.alertLightInput.value || "0", 10),
+        auto_mode: !!DOM.autoModeInput.checked,
+        auto_fan_temp: parseFloat(DOM.autoFanTempInput.value || "0"),
+        auto_pump_hum: parseFloat(DOM.autoPumpHumInput.value || "0"),
+        timezone_offset: parseInt(DOM.timezoneOffsetInput.value || "25200", 10)
+      };
+
+      if(Number.isNaN(payload.alert_temp) || Number.isNaN(payload.alert_light) || Number.isNaN(payload.auto_fan_temp) || Number.isNaN(payload.auto_pump_hum) || Number.isNaN(payload.timezone_offset)){
+        showToast("กรอกค่าระบบอัตโนมัติให้ถูกต้อง", "warn");
+        return;
+      }
+
+      try{
+        const { ref, update } = firebaseModules;
+        await update(ref(db, "iot_system/settings"), payload);
+        showToast("บันทึก Smart Auto สำเร็จ", "success");
+      }catch(err){
+        showToast("บันทึก Smart Auto ไม่สำเร็จ: " + humanError(err), "error");
+      }
+    }
+
+    async function addTimerItem(e){
+      e.preventDefault();
+
+      if(!db || !firebaseModules){
+        showToast("ยังไม่ได้เชื่อม Firebase", "error");
+        return;
+      }
+
+      const time = DOM.timerTime.value;
+      const device = DOM.timerDevice.value;
+      const action = DOM.timerAction.value;
+      const active = DOM.timerActive.value === "true";
+      const days = [...document.querySelectorAll(".day-check:checked")].map(el => Number(el.value));
+
+      if(!time){
+        showToast("กรุณาเลือกเวลา", "warn");
+        return;
+      }
+
+      const payload = {
+        time,
+        device,
+        action,
+        active,
+        days
+      };
+
+      try{
+        const { ref, push, set } = firebaseModules;
+        const timerRef = push(ref(db, "iot_system/timers"));
+        await set(timerRef, payload);
+        showToast("เพิ่ม Timer สำเร็จ", "success");
+        clearTimerForm();
+      }catch(err){
+        showToast("เพิ่ม Timer ไม่สำเร็จ: " + humanError(err), "error");
+      }
+    }
+
+    function clearTimerForm(){
+      DOM.timerForm.reset();
+      document.querySelectorAll(".chip").forEach(chip => chip.classList.remove("active"));
+      DOM.chipAutoMode.classList.toggle("active", DOM.autoModeInput.checked);
+    }
+
+    function renderTimerList(data){
+      const entries = Object.entries(data || {});
+      const container = DOM.timerList;
+
+      if(!entries.length){
+        container.innerHTML = `<div class="empty">ยังไม่มีรายการ Timer</div>`;
+        return;
+      }
+
+      entries.sort((a,b) => String(a[1]?.time || "").localeCompare(String(b[1]?.time || "")));
+
+      container.innerHTML = entries.map(([key, item]) => {
+        const deviceLabel = item.device === "relay_1" ? "หลอดไฟ" : item.device === "relay_2" ? "พัดลม" : item.device;
+        const actionLabel = item.action === "on" ? "เปิด" : "ปิด";
+        const dayNames = ["อา","จ","อ","พ","พฤ","ศ","ส"];
+        const daysText = Array.isArray(item.days) && item.days.length
+          ? item.days.map(d => dayNames[Number(d)] ?? d).join(", ")
+          : "ทุกวัน/ไม่ได้ระบุ";
+
+        return `
+          <div class="timer-item">
+            <div class="timer-meta">
+              <strong>${escapeHtml(item.time || "--:--")} • ${escapeHtml(deviceLabel)} • ${escapeHtml(actionLabel)}</strong>
+              <span class="muted small">วัน: ${escapeHtml(daysText)}</span>
+              <span class="muted small">สถานะ: ${item.active ? "ใช้งาน" : "ไม่ใช้งาน"}</span>
+            </div>
+            <div class="timer-actions">
+              <button class="btn ghost" type="button" data-action="toggle-timer" data-key="${key}" data-active="${item.active ? "1" : "0"}">
+                ${item.active ? "ปิดการใช้งาน" : "เปิดการใช้งาน"}
+              </button>
+              <button class="btn danger" type="button" data-action="delete-timer" data-key="${key}">
+                ลบ
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      container.querySelectorAll("[data-action='toggle-timer']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const key = btn.dataset.key;
+          const active = btn.dataset.active === "1";
+          await toggleTimerActive(key, !active);
+        });
+      });
+
+      container.querySelectorAll("[data-action='delete-timer']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const key = btn.dataset.key;
+          await deleteTimer(key);
+        });
+      });
+    }
+
+    async function toggleTimerActive(key, active){
+      if(!db || !firebaseModules) return;
+      try{
+        const { ref, update } = firebaseModules;
+        await update(ref(db, `iot_system/timers/${key}`), { active });
+        showToast("อัปเดตสถานะ Timer แล้ว", "success");
+      }catch(err){
+        showToast("อัปเดต Timer ไม่สำเร็จ: " + humanError(err), "error");
+      }
+    }
+
+    async function deleteTimer(key){
+      if(!db || !firebaseModules) return;
+      try{
+        const { ref, remove } = firebaseModules;
+        await remove(ref(db, `iot_system/timers/${key}`));
+        showToast("ลบ Timer แล้ว", "success");
+      }catch(err){
+        showToast("ลบ Timer ไม่สำเร็จ: " + humanError(err), "error");
+      }
+    }
+
+    function initStaticChart(){
+      const ctx = document.getElementById("historyChart");
+      historyChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "อุณหภูมิ (°C)",
+              data: [],
+              borderColor: "#ef4444",
+              backgroundColor: "rgba(239,68,68,.15)",
+              tension: .35,
+              fill: false,
+              pointRadius: 2
+            },
+            {
+              label: "ความชื้น (%)",
+              data: [],
+              borderColor: "#22d3ee",
+              backgroundColor: "rgba(34,211,238,.15)",
+              tension: .35,
+              fill: false,
+              pointRadius: 2
+            },
+            {
+              label: "ความสว่าง (%)",
+              data: [],
+              borderColor: "#f59e0b",
+              backgroundColor: "rgba(245,158,11,.15)",
+              tension: .35,
+              fill: false,
+              pointRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive:true,
+          maintainAspectRatio:false,
+          interaction:{mode:"index",intersect:false},
+          plugins:{
+            legend:{
+              labels:{color:"#dce8ff",font:{family:"Sarabun",size:13}}
+            },
+            tooltip:{
+              backgroundColor:"rgba(9,16,29,.95)",
+              borderColor:"#30415f",
+              borderWidth:1,
+              titleColor:"#fff",
+              bodyColor:"#dce8ff"
+            }
+          },
+          scales:{
+            x:{
+              ticks:{color:"#9fb1d1",maxRotation:0,autoSkip:true},
+              grid:{color:"rgba(255,255,255,.06)"}
+            },
+            y:{
+              ticks:{color:"#9fb1d1"},
+              grid:{color:"rgba(255,255,255,.06)"}
+            }
+          }
+        }
+      });
+    }
+
+    async function loadHistoryChartData(showToastMessage = false){
+      if(!db || !firebaseModules || !historyChart) return;
+
+      try{
+        const { ref, query, orderByChild, limitToLast, get } = firebaseModules;
+        const q = query(ref(db, "iot_system/history"), orderByChild("timestamp"), limitToLast(60));
+        const snap = await get(q);
+
+        if(!snap.exists()){
+          updateChart([], [], [], []);
+          if(showToastMessage) showToast("ยังไม่มีข้อมูล history", "warn");
+          return;
+        }
+
+        const raw = snap.val() || {};
+        const items = Object.values(raw)
+          .filter(Boolean)
+          .map(item => ({
+            temperature: Number(item.temperature ?? 0),
+            humidity: Number(item.humidity ?? 0),
+            light_percent: Number(item.light_percent ?? 0),
+            timestamp: normalizeTimestamp(item.timestamp) ?? Date.now()
+          }))
+          .sort((a,b) => a.timestamp - b.timestamp)
+          .slice(-60);
+
+        const labels = items.map(item => formatTime(item.timestamp));
+        const temps = items.map(item => item.temperature);
+        const hums = items.map(item => item.humidity);
+        const lights = items.map(item => item.light_percent);
+
+        updateChart(labels, temps, hums, lights);
+
+        if(showToastMessage) showToast("รีเฟรชกราฟแล้ว", "success");
+      }catch(err){
+        showToast("โหลด history ไม่สำเร็จ: " + humanError(err), "error");
+      }
+    }
+
+    function updateChart(labels, temps, hums, lights){
+      historyChart.data.labels = labels;
+      historyChart.data.datasets[0].data = temps;
+      historyChart.data.datasets[1].data = hums;
+      historyChart.data.datasets[2].data = lights;
+      historyChart.update();
+    }
+
+    function formatTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleTimeString("th-TH", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function formatDateTime(ts){
+      const d = new Date(ts);
+      return d.toLocaleString("th-TH", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    function showToast(message, type = "info"){
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.textContent = message;
+      DOM.toastWrap.appendChild(el);
+
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(8px)";
+        el.style.transition = ".2s ease";
+        setTimeout(() => el.remove(), 220);
+      }, 3200);
+    }
+
+    function humanError(err){
+      const code = err?.code || "";
+      const msg = err?.message || String(err || "Unknown error");
+
+      const map = {
+        "auth/invalid-credential":"อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+        "auth/invalid-email":"รูปแบบอีเมลไม่ถูกต้อง",
+        "auth/missing-password":"กรุณากรอกรหัสผ่าน",
+        "auth/email-already-in-use":"อีเมลนี้ถูกใช้งานแล้ว",
+        "auth/weak-password":"รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+        "auth/network-request-failed":"เครือข่ายมีปัญหา กรุณาตรวจสอบอินเทอร์เน็ต",
+        "auth/user-not-found":"ไม่พบบัญชีผู้ใช้นี้",
+        "auth/wrong-password":"รหัสผ่านไม่ถูกต้อง",
+        "permission-denied":"สิทธิ์ไม่เพียงพอในการอ่าน/เขียนฐานข้อมูล"
+      };
+
+      return map[code] || msg;
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+  </script>
+</body>
+</html>
