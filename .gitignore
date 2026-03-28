@@ -1,0 +1,29 @@
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Arduino
+build/
+.pio/
+*.elf
+*.bin
+
+# Dependencies
+node_modules/
+*.gem
+
+# Firebase
+.env
+config.local.js
+
+# Misc
+*.bak
+temp/
